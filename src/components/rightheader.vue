@@ -12,10 +12,10 @@ defineProps({
 <template>
     <div class = "header"><img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="100" height="100" /><h1>
         {{ header }}</h1>
-        <div class = "navigation"> <nav>
-            <RouterLink to="/">HOME</RouterLink>
-            <RouterLink to="/about">ABOUT US</RouterLink>
-        </nav></div>
+        <div class = "navigation">
+            <a><RouterLink to="/calculatorApp">Calculator</RouterLink></a>
+            <RouterLink to="/about">About</RouterLink>
+        </div>
 
     </div>
 
@@ -44,24 +44,52 @@ defineProps({
     font-family: "MS Gothic";
     font-size: 50px;
     margin-top: -95px;
-    margin-left: 140px;
+    margin-left: 140px ;
     letter-spacing: -2px;
 }
-.navigation{
-    width: 100% ;
-    margin-top: -12px;
-    height: 84.9%;
-    text-align: center;
-    color: #2c3e50;
 
-}
 .navigation {
-    width: 100% ;
-    margin-top: -12px;
-    height: 84.9%;
-    text-align: center;
-    color: #2c3e50;
-
+    display: flex;
+    justify-content: center;
+    background: #679c7c;
+    padding: 0px 0;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
 }
 
+.nav-link {
+    color: #dc0202;
+    text-decoration: none;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 12px 20px;
+    border-radius: 5px;
+    transition: background 0.3s ease-in-out, transform 0.2s ease;
+}
+
+.nav-link:hover {
+    background: #1abc9c;
+    transform: scale(1.1);
+}
+
+.nav-link:active {
+    background: #16a085;
+}
+
+.navigation a {
+
+    color: #24684c;
+    font-weight: bold;
+    font-size: 16px;
+    margin-right: 40px;
+    width: 100px;
+    text-align: center;
+    padding: 20px;
+}
+.router-link-active {
+    background-color: #294034;
+    color: #24684c;
+
+
+
+}
 </style>

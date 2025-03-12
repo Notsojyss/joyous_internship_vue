@@ -1,40 +1,22 @@
 <script setup>
 import leftheader from './components/leftheader.vue'
 import rightheader from './components/rightheader.vue'
+import OptionsAPI from './components/OptionsAPI.vue'
 import Counter from './components/counter.vue'
 import { useCounterStore } from '@/stores/counter'
 
+import { RouterLink, RouterView } from 'vue-router'
 const counterStore = useCounterStore()
 </script>
 
 <template>
-    <div>
-        <div>
-            <rightheader
-            :header = "'VUE2 LOGO'"
-            >
 
-            </rightheader>
-        </div>
+<div> <leftheader></leftheader>
+    <rightheader
+        header = "VUE2 LOGO"
+    ></rightheader></div>
 
-        <div>
-
-            <leftheader
-                :msg = "'side'"
-            >
-
-            </leftheader>
-            </div>
-        <div class =" counter">
-            <div class = "ctr-position">
-                <p>Count: {{ counterStore.count }}</p>
-                <p>Double Count: {{ counterStore.doubleCount }}</p>
-                <button @click="counterStore.increment">Increment</button></div>
-        </div>
-            </div>
-
-
-
+    <RouterView />
 </template>
 
 <style scoped>
