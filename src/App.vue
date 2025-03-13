@@ -6,7 +6,7 @@ import Counter from './components/counter.vue'
 import { useCounterStore } from '@/stores/counter'
 
 import { RouterLink, RouterView } from 'vue-router'
-const counterStore = useCounterStore()
+
 </script>
 
 <template>

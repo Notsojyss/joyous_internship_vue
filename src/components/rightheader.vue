@@ -1,22 +1,37 @@
 <script setup>
 import {RouterLink} from "vue-router";
+import Loginregister from "@/components/loginregister.vue";
 
 defineProps({
     header: {
         type: String,
         default: 'common',
     },
+    login: {
+        type: String,
+        default: 'Login'
+    },
+    computed: {
+
+    },
+    methods: {
+
+    }
 })
 </script>
 
 <template>
-    <div class = "header"><img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="100" height="100" /><h1>
-        {{ header }}</h1>
-        <div class = "navigation">
-            <a><RouterLink to="/calculatorApp">Calculator</RouterLink></a>
-            <RouterLink to="/about">About</RouterLink>
-        </div>
+    <div class="header">
+        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="70" height="90" />
+        <h1>{{ header }}</h1>
 
+        <loginregister />
+
+
+        <div class="navigation">
+            <RouterLink to="/calculatorApp">Calculator</RouterLink>
+            <RouterLink to="/landingpage">Home</RouterLink>
+        </div>
     </div>
 
 </template>
@@ -24,17 +39,17 @@ defineProps({
 <style scoped>
 .header{
     margin: 0;
-    border: solid 2px;
+
     position: absolute;
     width: 100% ;
     background-color: #a4d6bd;
     top: 5px;
     left: 0px;
-    height: 125px;
+    height: 100px;
 
 }
 .logo {
-    margin-top: 15px;
+    margin-top: 0px;
     margin-left: 30px;/* Move the image down */
 }
 
@@ -54,6 +69,8 @@ defineProps({
     background: #679c7c;
     padding: 0px 0;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 17px;
+    width: 100%;
 }
 
 .nav-link {
@@ -65,7 +82,34 @@ defineProps({
     border-radius: 5px;
     transition: background 0.3s ease-in-out, transform 0.2s ease;
 }
-
+.register {
+    position: absolute;
+    top: 45px;
+    right: 20px;
+}
+.login {
+    position: absolute;
+    top: 45px;
+    right: 100px;
+}
+.btn {
+    background: #34495e;
+    color: #fff;
+    border: none;
+    padding: 8px;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+.btn:hover {
+    background: #1abc9c;
+}
+.buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
 .nav-link:hover {
     background: #1abc9c;
     transform: scale(1.1);
@@ -83,7 +127,12 @@ defineProps({
     margin-right: 40px;
     width: 100px;
     text-align: center;
-    padding: 20px;
+    padding: 5px;
+}
+.navigation a:hover {
+
+    background: #1abc9c;
+    transform: scale(1.1);
 }
 .router-link-active {
     background-color: #294034;

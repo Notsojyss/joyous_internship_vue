@@ -14,6 +14,21 @@ const router = createRouter({
             name: "About",
             path: "/about",
             component: ()=>import('@/views/AboutView.vue')
+        },
+        {
+            name: "registrationform",
+            path: "/registrationform",
+            component: ()=>import('@/components/registrationform.vue')
+        },
+        {
+            name: "loginform",
+            path: "/loginform",
+            component: ()=>import('@/components/loginform.vue')
+        },
+        {
+            name: "LandingPage",
+            path: "/landingpage",
+            component: ()=>import('@/views/LandingPage.vue')
         }
     ],
 })
