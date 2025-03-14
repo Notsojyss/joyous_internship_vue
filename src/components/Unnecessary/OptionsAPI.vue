@@ -1,6 +1,6 @@
 <script>
-import Leftheader from "@/components/leftheader.vue";
-import Rightheader from "@/components/rightheader.vue";
+import Leftheader from "@/components/Unnecessary/leftheader.vue";
+import Rightheader from "@/components/Headers/rightheader.vue";
 import { optionsjs } from "@/mixins/optionsjs.js";
 
 export default {

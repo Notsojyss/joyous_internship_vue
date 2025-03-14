@@ -1,8 +1,8 @@
 <script setup>
-import leftheader from './components/leftheader.vue'
-import rightheader from './components/rightheader.vue'
-import OptionsAPI from './components/OptionsAPI.vue'
-import Counter from './components/counter.vue'
+import leftheader from './components/Unnecessary/leftheader.vue'
+import rightheader from './components/Headers/rightheader.vue'
+import OptionsAPI from './components/Unnecessary/OptionsAPI.vue'
+import Counter from './components/Unnecessary/counter.vue'
 import { useCounterStore } from '@/stores/counter'
 
 import { RouterLink, RouterView } from 'vue-router'
@@ -11,9 +11,9 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <template>
 
-<div> <leftheader></leftheader>
+<div>
     <rightheader
-        header = "VUE2 LOGO"
+        header = "GT MARKET HUB"
     ></rightheader></div>
 
     <RouterView />

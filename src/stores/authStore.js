@@ -22,7 +22,7 @@ export const useAuthStore = defineStore("auth", {
             }
 
             try {
-                // Send logout request to Laravel API
+
                 const response = await fetch("http://joyous-internship-api-local.com/api/user/logout", {
                     method: "POST",
                     headers: {
@@ -35,7 +35,6 @@ export const useAuthStore = defineStore("auth", {
                     throw new Error("Logout failed");
                 }
 
-                // Clear user data
                 this.user = null;
                 localStorage.removeItem("auth_token");
                 localStorage.removeItem("user");
@@ -43,7 +42,7 @@ export const useAuthStore = defineStore("auth", {
                 alert("User has logged out.");
                 console.log("User has logged out.");
 
-                // Redirect to login page using the passed router instance
+
                 router.push("/loginform");
 
             } catch (error) {

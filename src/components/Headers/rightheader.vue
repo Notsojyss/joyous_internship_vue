@@ -1,6 +1,6 @@
 <script setup>
 import {RouterLink} from "vue-router";
-import Loginregister from "@/components/loginregister.vue";
+import Loginregister from "@/components/Headers/loginregister.vue";
 
 defineProps({
     header: {
@@ -22,7 +22,7 @@ defineProps({
 
 <template>
     <div class="header">
-        <img alt="Vue logo" class="logo" src="@/assets/logo.svg" width="70" height="90" />
+        <img alt="Vue logo" class="logo" src="../../assets/gtmarketlogo.png" width="80" height="85" />
         <h1>{{ header }}</h1>
 
         <loginregister />
@@ -31,6 +31,12 @@ defineProps({
         <div class="navigation">
             <RouterLink to="/calculatorApp">Calculator</RouterLink>
             <RouterLink to="/landingpage">Home</RouterLink>
+            <RouterLink to="/market" class="nav-item">
+                <img src="../../assets/gtmarket.png" alt="Market" class="nav-icon" />
+                Marketplace
+            </RouterLink>
+            <RouterLink to="/shop"> $ Shop</RouterLink>
+            <RouterLink to="/pvp">PVP Battle</RouterLink>
         </div>
     </div>
 
@@ -39,39 +45,48 @@ defineProps({
 <style scoped>
 .header{
     margin: 0;
-
     position: absolute;
     width: 100% ;
-    background-color: #a4d6bd;
-    top: 5px;
+    background-color: #aaefce;
+    top: 0px;
     left: 0px;
-    height: 100px;
-
+    min-height: 100px;
+    border: #2c3e50 solid 0.5px;
 }
+
 .logo {
     margin-top: 0px;
     margin-left: 30px;/* Move the image down */
+    padding: 4px;
 }
 
 .header h1 {
     font-weight: bold;
     color:#2c3e50;
     font-family: "MS Gothic";
-    font-size: 50px;
-    margin-top: -95px;
-    margin-left: 140px ;
+    font-size: 32px;
+    margin-top: -70px;
+    margin-left: 110px ;
     letter-spacing: -2px;
+    height: 60px;
 }
 
 .navigation {
-    display: flex;
-    justify-content: center;
-    background: #679c7c;
-    padding: 0px 0;
+    position: absolute;
+
+    left: 50%;
+    transform: translateX(-50%);
+    background: #94cca9;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     margin-top: 17px;
-    width: 100%;
+    width: 100.1%; /* Adjust width as needed */
+    border: #2c3e50 solid 0.5px;
+
+    text-align: center;
+    display: flex;
+    justify-content: center;
 }
+
 
 .nav-link {
     color: #dc0202;
@@ -125,7 +140,7 @@ defineProps({
     font-weight: bold;
     font-size: 16px;
     margin-right: 40px;
-    width: 100px;
+    width: auto;
     text-align: center;
     padding: 5px;
 }
@@ -141,4 +156,17 @@ defineProps({
 
 
 }
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+    text-decoration: none;
+    color: black;
+}
+
+.nav-icon {
+    width: 24px; /* Adjust size */
+    height: 24px;
+}
+
 </style>

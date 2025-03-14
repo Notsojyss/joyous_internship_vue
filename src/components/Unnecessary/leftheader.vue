@@ -22,33 +22,40 @@ defineProps({
 <style scoped>
 
 .navigation{
-    left: 0px;
-    margin: auto;
-    border: #282828 solid 3px;
-    padding: 8px;
     position: absolute;
-    width: 250px ;
-    background-color: #2c3e50;
-    top: 130px;
-    height: 84.9%;
+    left: 0;
+    top: 135px;
+    width: 100%;
+    height: 50px;
+    background-color: #5a8570;
+    border: 3px solid #282828;
+    padding: 8px;
 
 }
-.navigation ul{
-    margin: auto;
 
-}
 ul li{
     text-align: Center;
-    background-color: white;
+    background-color: #a5efc7;
     border: #282828 solid 3px;
     padding: 10px;
     position: relative;
     font-weight: bold;
     margin: auto;
     font-size: 15px;
-    width: 250px;
+    width: 200px;
     left: -50px;
 
 }
+.navigation ul li:hover {
+    background: #1abc9c;
+    transform: scale(1.1);
 
+}
+.navigation ul li a{
+    width: 200px;
+}
+.navigation ul li a:hover {
+    color: whitesmoke;
+
+}
 </style>

@@ -1,6 +1,6 @@
 
 <script>
-    import { useAuthStore } from "@/stores/authStore";
+    import { useAuthStore } from "@/stores/authStore.js";
 
     export default {
     name: "loginform",
@@ -46,12 +46,15 @@
 </script>
 
 <template>
-    <div class="forms">
-        <div v-if="!authStore.user">
-            <input v-model="logindata.username" placeholder="Username" /><br>
-            <input v-model="logindata.password" placeholder="Password" type="password" /><br>
-            <button @click="loginUser">Login</button>
-        </div>
+    <div v-if="!authStore.user" class="forms">
+        <h1>Login</h1>
+        <input v-model="logindata.username" placeholder="Username" />
+        <input v-model="logindata.password" placeholder="Password" type="password" />
+        <button @click="loginUser">Login</button>
+        <p class="login-link">
+            Don't have an account?
+            <router-link to="/registrationform">Register</router-link>
+        </p>
     </div>
 </template>
 
@@ -60,18 +63,21 @@
     margin-top: 150px;
     margin-right: 200px;
     width: 600px;
-
+    min-height: 200px;
     padding: 20px;
     background: #75d5a3;
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-
+.disabled-form {
+    opacity: 0.5;
+    pointer-events: none; /* Prevent clicks and interactions */
+}
 .forms input {
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
+    margin: 12px 0;
     border: 1px solid #ddd;
     border-radius: 5px;
     font-size: 16px;
