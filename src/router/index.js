@@ -44,22 +44,13 @@ router.beforeEach((to, from, next) => {
     const authStore = useAuthStore();
     const isAuthenticated = !!localStorage.getItem("auth_token"); // Check token presence
 
-    console.log("Navigating to:", to.path);
-    console.log("Requires Auth?", to.meta.requiresAuth);
-    console.log("Requires Guest?", to.meta.requiresGuest);
-    console.log("Is User Authenticated?", isAuthenticated);
-
     if (to.meta.requiresAuth && !isAuthenticated) {
-        console.log("User is NOT authenticated. Redirecting to /loginform...");
         next('/loginform');
     } else if (to.meta.requiresGuest && isAuthenticated) {
-        console.log("User is already logged in. Redirecting to /landingpage...");
         next('/landingpage');
     } else if (to.meta.requiresGuest && isAuthenticated) {
-        console.log("User is already logged in. Redirecting to /landingpage...");
         next('/shop');
     } else {
-        console.log("User allowed to proceed.");
         next(); // Allow navigation
     }
 });

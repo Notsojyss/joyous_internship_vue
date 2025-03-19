@@ -16,13 +16,21 @@ export default {
         };
 
         return { authStore, user, handleLogout };
-    }
+    },
+
 };
 </script>
 
 <template>
     <div>
+            <div class = "moneyVal">
+                <a  v-if="!user"  hidden>  </a>
+                <a v-else> Money: {{user.money}} </a>
+            </div>
+
+
         <RouterLink v-if="!user" to="/loginform" class="btn login-btn">Login</RouterLink>
+
         <button v-else class="btn login-btn">{{ user.full_name }}</button>
 
         <RouterLink v-if="!user" to="/registrationform" class="btn register-btn">Register</RouterLink>
@@ -67,4 +75,15 @@ export default {
 .register-btn:hover {
     background: #1abc9c;
 }
+.moneyVal{
+    position: absolute;
+    top: 35px;
+    right: 270px;
+
+}
+.moneyVal a{
+    font-weight: bold;
+    color: black;
+}
+
 </style>
