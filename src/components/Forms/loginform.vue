@@ -2,28 +2,29 @@
 <script>
     import { useAuthStore } from "@/stores/authStore.js";
 
-    export default {
-    name: "loginform",
-    setup() {
-    const authStore = useAuthStore();
+export default {
+        name: "loginform",
+        setup() {
+        const authStore = useAuthStore();
+
 
     return { authStore };
 },
     data() {
-    return {
-    logindata: {
-    username: '',
-    password: ''
-}
-};
+      return {
+            logindata: {
+            username: '',
+            password: ''
+        }
+    };
 },
     methods: {
-    async loginUser() {
-    try {
-    const response = await fetch('http://joyous-internship-api-local.com/api/user/login', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(this.logindata)
+        async loginUser() {
+            try {
+            const response = await fetch('http://joyous-internship-api-local.com/api/user/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(this.logindata)
 });
 
     if (!response.ok) {
@@ -32,7 +33,8 @@
 
     const data = await response.json();
     console.log("Login successful:");
-    this.authStore.login(data.user, data.token); // Use Pinia to store user data
+    this.authStore.login(data.user, data.token);
+    this.authStore.fetchMoney();
 
     alert('Login successful!');
     this.$router.push('/landingpage');

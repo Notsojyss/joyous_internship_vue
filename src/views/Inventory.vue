@@ -51,7 +51,7 @@ export default {
                 </div>
                 <div class = "itemtext">
                     <p>{{ item.description }}</p>
-                    <p><strong>Rarity:</strong> {{ item.rarity }}</p>
+<!--                    <p><strong>Rarity:</strong> {{ item.rarity }}</p>-->
                 </div>
                 <div class = "qtytext">
                     <p><strong> {{item.quantity}}</strong></p>

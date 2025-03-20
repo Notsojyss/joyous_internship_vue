@@ -11,7 +11,7 @@ export default {
     data() {
         return {
             items: [],
-
+            quantities: {} // Store quantities for each item
         };
     },
     computed: {
@@ -19,7 +19,6 @@ export default {
             return this.authStore.user;
         }
     },
-
     mounted() {
         this.fetchItems();
     },
@@ -30,25 +29,42 @@ export default {
                     "http://joyous-internship-api-local.com/api/item/get-shopitems"
                 );
                 this.items = response.data;
+
+                // Initialize quantities for each item
+                this.items.forEach(item => {
+                    this.quantities[item.id] = 1;
+                });
             } catch (error) {
                 console.error("Error fetching items:", error);
             }
-        },async buyItem(item) {
+        },
+
+        increaseQuantity(itemId) {
+            this.quantities[itemId]++;
+        },
+
+        decreaseQuantity(itemId) {
+            if (this.quantities[itemId] > 1) {
+                this.quantities[itemId]--;
+            }
+        },
+
+        async buyItem(item) {
             try {
                 const token = localStorage.getItem("auth_token"); // Retrieve token from localStorage
-                // const user = JSON.parse(localStorage.getItem("user")); // Retrieve user data
-                // const userId = user?.id; // Ensure user exists
 
                 if (!this.user?.id) {
                     alert("Please log in to purchase an item.");
                     return;
                 }
 
+                const quantity = this.quantities[item.id]; // Get selected quantity
+
                 const response = await axios.post(
                     "http://joyous-internship-api-local.com/api/user/buy-item",
                     {
                         item_id: item.id,
-                        quantity: 1 // ✅ Ensure quantity is sent
+                        quantity: quantity // ✅ Ensure selected quantity is sent
                     },
                     {
                         headers: {
@@ -65,11 +81,10 @@ export default {
                 alert("Failed to buy item: " + (error.response?.data?.error || error.message));
             }
         }
-
-
-    },
+    }
 };
 </script>
+
 
 <template>
     <div class="shop-container">
@@ -81,12 +96,21 @@ export default {
                 <p>Description: {{ item.description }}</p>
                 <p><strong>Rarity:</strong> {{ item.rarity }}</p>
                 <p><strong>Price:</strong> {{ item.price }}</p>
+
+                <!-- Quantity Input -->
+                <div class="quantity-container">
+                    <button @click="decreaseQuantity(item.id)">-</button>
+                    <input type="number" v-model="quantities[item.id]" min="1" />
+                    <button @click="increaseQuantity(item.id)">+</button>
+                </div>
+
                 <br />
-                <button @click="buyItem(item)">Buy</button> <!-- ✅ Fixed button event -->
+                <button @click="buyItem(item)">Buy</button>
             </div>
         </div>
     </div>
 </template>
+
 
 <style scoped>
 .shop-container {
