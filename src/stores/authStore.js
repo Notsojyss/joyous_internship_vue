@@ -1,8 +1,10 @@
 import { defineStore } from "pinia";
-
+import { ref } from "vue";
+import axios from 'axios'
 export const useAuthStore = defineStore("auth", {
     state: () => ({
-        user: JSON.parse(localStorage.getItem("user")) || null
+        user: JSON.parse(localStorage.getItem("user")) || null,
+        money: 0
     }),
     actions: {
         login(userData, token) {
@@ -36,6 +38,7 @@ export const useAuthStore = defineStore("auth", {
                 }
 
                 this.user = null;
+
                 localStorage.removeItem("auth_token");
                 localStorage.removeItem("user");
                 console.log("Token successfully deleted from API.");
@@ -54,6 +57,23 @@ export const useAuthStore = defineStore("auth", {
         checkLoginStatus() {
             const storedUser = localStorage.getItem("user");
             this.user = storedUser ? JSON.parse(storedUser) : null;
-        }
+        },
+
+        async fetchMoney() {
+            try {
+                const token = localStorage.getItem("auth_token");
+                const response = await axios.get("http://joyous-internship-api-local.com/api/user/getMoney", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+
+                 this.money = response.data.money;
+                 console.log("Updated Money", this.money);
+            } catch (error) {
+                console.error("Error fetching money:", error.response?.data || error.message);
+            }
+        },
+
+
+
     }
 });

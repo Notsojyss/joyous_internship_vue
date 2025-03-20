@@ -29,14 +29,14 @@ defineProps({
 
 
         <div class="navigation">
-            <RouterLink to="/calculatorApp">Calculator</RouterLink>
+            <RouterLink to="/pvp">PVP Battle</RouterLink>
             <RouterLink to="/landingpage">Home</RouterLink>
             <RouterLink to="/market" class="nav-item">
                 <img src="../../assets/gtmarket.png" alt="Market" class="nav-icon" />
                 Marketplace
             </RouterLink>
             <RouterLink to="/shop"> $ Shop</RouterLink>
-            <RouterLink to="/pvp">PVP Battle</RouterLink>
+            <RouterLink to="/inventory">Inventory</RouterLink>
         </div>
     </div>
 

@@ -37,7 +37,20 @@ const router = createRouter({
             path: "/shop",
             component: ()=>import('@/views/ShopView.vue'),
             meta: { requiresAuth: true }
+        },
+        {
+            name: "Inventory",
+            path: "/inventory",
+            component: ()=>import('@/views/Inventory.vue'),
+            meta: { requiresAuth: true }
+        },
+        {
+            name: "Market",
+            path: "/market",
+            component: ()=>import('@/views/Market.vue'),
+            meta: { requiresAuth: true }
         }
+
     ],
 })
 router.beforeEach((to, from, next) => {

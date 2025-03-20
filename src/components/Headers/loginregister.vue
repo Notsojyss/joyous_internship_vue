@@ -1,31 +1,44 @@
 <script>
 import { useAuthStore } from "@/stores/authStore.js";
 import { storeToRefs } from "pinia";
-import { useRouter } from "vue-router"; // Import router
+import { useRouter } from "vue-router";
+import axios from 'axios'
 
 export default {
     name: "loginregister",
-    setup() {
-        const authStore = useAuthStore();
-        const { user } = storeToRefs(authStore);
-        const router = useRouter(); // Get router instance
-
-        // Function to handle logout and pass router instance
-        const handleLogout = () => {
-            authStore.logout(router);
+    data() {
+        return {
+            authStore: useAuthStore(),
+            router: useRouter()
         };
-
-        return { authStore, user, handleLogout };
     },
-
+    computed: {
+        user() {
+            return this.authStore.user;
+        },
+        money() {
+            return this.authStore.money;
+        }
+    },
+    methods: {
+        handleLogout() {
+            this.authStore.logout(this.router);
+        }
+    },
+    mounted() {
+        if (this.user) {
+            this.authStore.fetchMoney(); // Fetch money when component is mounted
+        }
+    }
 };
 </script>
+
 
 <template>
     <div>
             <div class = "moneyVal">
                 <a  v-if="!user"  hidden>  </a>
-                <a v-else> Money: {{user.money}} </a>
+                <a v-else> Money: {{money}} </a>
             </div>
 
 
