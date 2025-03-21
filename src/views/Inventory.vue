@@ -1,39 +1,18 @@
 <script>
 import axios from "axios";
+import {useAuthStore} from "@/stores/authStore.js";
+import { computed, onMounted } from "vue";
 
 export default {
     name: "Inventory",
-    data() {
-        return {
-            items: [] // Initialize items as an empty array
-        };
+    setup() {
+        const authStore = useAuthStore();
+        const items = computed(() => authStore.items);
+        onMounted(() => {
+            authStore.fetchUserItems();
+        });
+        return { authStore,items };
     },
-    methods: {
-        async fetchUserItems() {
-            try {
-                const token = localStorage.getItem("auth_token");
-                if (!token) {
-                    console.error("No authentication token found.");
-                    return;
-                }
-
-                const response = await axios.get("http://joyous-internship-api-local.com/api/user/getUsersitem", {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-
-                if (response.data.length > 0) {
-                    this.items = response.data[0].items; // Assign fetched items
-                } else {
-                    this.items = [];
-                }
-            } catch (error) {
-                console.error("Error fetching user items:", error);
-            }
-        }
-    },
-    mounted() {
-        this.fetchUserItems(); // Fetch items when the component mounts
-    }
 };
 </script>
 

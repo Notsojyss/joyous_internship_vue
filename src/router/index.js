@@ -49,7 +49,19 @@ const router = createRouter({
             path: "/market",
             component: ()=>import('@/views/Market.vue'),
             meta: { requiresAuth: true }
-        }
+        },
+        {
+            name: "Buyingcomponent",
+            path: "/buyingcomponent",
+            component: ()=>import('@/components/marketcomponents/Buyingcomponent.vue'),
+            meta: { requiresAuth: true }
+        },{
+            name: "Sellingcomponent",
+            path: "/sellingcomponent",
+            component: ()=>import('@/components/marketcomponents/Sellingcomponent.vue'),
+            meta: { requiresAuth: true }
+        },
+
 
     ],
 })

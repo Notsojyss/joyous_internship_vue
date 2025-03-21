@@ -78,7 +78,8 @@ export default {
                 this.authStore.fetchMoney();
             } catch (error) {
                 console.error("Error buying item:", error);
-                alert("Failed to buy item: " + (error.response?.data?.error || error.message));
+                alert("Failed to buy item: Not enough money")
+                console.error("Failed to buy item: " + (error.response?.data?.error || error.message));
             }
         }
     }
