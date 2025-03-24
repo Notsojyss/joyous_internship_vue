@@ -1,6 +1,5 @@
 <script>
 import axios from "axios";
-import "@/assets/styles/marketcss.css"
 import {useAuthStore} from "@/stores/authStore.js";
 import { computed, onMounted } from "vue";
 import { ref } from "vue";
@@ -31,6 +30,11 @@ export default {
             sellQuantity: 1,
             sellPrice: 0
         };
+    },
+    computed: {
+        user() {
+            return this.authStore.user;
+        }
     },
     methods: {
         openSellModal(item) {
@@ -72,27 +76,46 @@ export default {
             this.filteredListings = [];
         },
 
-        async buyItem(listingId) {
+        // async buyItem(listingId, quantity) {
+        //     try {
+        //         const token = localStorage.getItem("auth_token");
+        //         if (!token) {
+        //             console.error("No authentication token found");
+        //             return;
+        //         }
+        //
+        //         const response = await axios.post( "http://joyous-internship-api-local.com/api/buy-item",
+        //             { listing_id: listingId, quantity, from_market: true },
+        //             { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
+        //         );
+        //
+        //         alert(response.data.message);
+        //
+        //     } catch (error) {
+        //         console.error("Error purchasing item:", error.response?.data || error.message);
+        //     }
+        // },
+        async handleSellItem() {
             try {
-                const token = localStorage.getItem("auth_token");
-                if (!token) {
-                    console.error("No authentication token found");
-                    return;
-                }
-
-                const response = await axios.post(
-                    "http://joyous-internship-api-local.com/api/market/buy",
-                    { listing_id: listingId },
-                    { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
-                );
-
-                alert(response.data.message);
-                this.fetchListings(); // Refresh listings after purchase
-                this.closeModal();
+                await this.authStore.sellItem(this.selectedItem.item_id, this.sellQuantity, this.sellPrice);
+                this.showSellModal = false;
+                this.showItems =false;
             } catch (error) {
-                console.error("Error purchasing item:", error);
+                console.error("Error selling item:", error);
+                alert("Failed to sell item.");
             }
+        },
+        async handleCurrentView(){
+            this.currentView = 'buy';
+            this.authStore.fetchListings();
+
+        },
+         async handleBuyItem (listing){
+            this.authStore.buyItem( {id: listing.id, quantity: listing.quantity, idType: 'listing_id'});
+             await this.authStore.fetchListings();
+           await this.authStore.fetchMoney();
         }
+
     }
 };
 </script>
@@ -101,7 +124,7 @@ export default {
     <div class="market-container">
         <h1>Market</h1>
         <div class="toggle-buttons">
-            <button :class="{ active: currentView === 'buy' }" @click="currentView = 'buy'">Buy</button>
+            <button :class="{ active: currentView === 'buy' }" @click=this.handleCurrentView()>Buy</button>
             <button :class="{ active: currentView === 'sell' }" @click="currentView = 'sell'">Sell</button>
         </div>
 
@@ -113,7 +136,7 @@ export default {
                     <img :src="item.image" :alt="item.item_name" class="listing-image" />
                     <h3 class="itemNameH3">ITEM</h3>
                     <h2 class="itemNametext">{{ item.item_name }}</h2>
-                    <button @click="openModal(item.item_name)">View Listings</button>
+                    <button class = "view-listing-btn" @click="openModal(item.item_name)">View Listings</button>
                 </div>
             </div>
             <p v-else>No active listings available.</p>
@@ -146,8 +169,11 @@ export default {
 
             <!-- Modal for selecting an item to sell -->
             <div v-if="showItems" class="modal-overlay" @click="showItems = false">
-                <div class="modal-content" @click.stop>
-                    <h3>Select an Item to Sell:</h3>
+                <div class="modal-content-sell-list" @click.stop>
+                    <div class = "modal-content-sell-list-header">
+                        <h3>Select an Item to Sell:</h3>
+                        <button @click="showItems = false">Close</button>
+                    </div>
                     <div v-if="items.length > 0" class="item-list">
                         <div v-for="item in items" :key="item.id" class="item">
                             <img :src="item.image" :alt="item.item_name" class="item-image" />
@@ -163,19 +189,18 @@ export default {
                         </div>
                     </div>
                     <p v-else>No items found.</p>
-                    <button @click="showItems = false">Close</button>
                 </div>
             </div>
 
             <!-- Modal for entering quantity and price -->
             <div v-if="showSellModal" class="modal-overlay" @click="showSellModal = false">
-                <div class="modal-content" @click.stop>
+                <div class="modal-content-sell-input" @click.stop>
                     <h3>Sell {{ selectedItem?.item_name }}</h3>
                     <label>Quantity:</label>
                     <input type="number" v-model="sellQuantity" :max="selectedItem?.quantity" min="1" />
                     <label>Price per Item:</label>
                     <input type="number" v-model="sellPrice" min="0.01" step="0.01" />
-                    <button @click="authStore.sellItem(selectedItem.item_id, sellQuantity, sellPrice)">Confirm Sell</button>
+                    <button @click=handleSellItem()>Confirm Sell</button>
                     <button @click="showSellModal = false">Cancel</button>
                 </div>
             </div>
@@ -184,9 +209,13 @@ export default {
 
 
         <!-- Modal for Item Listings -->
-        <div v-if="showModal" class="modal-overlay">
-            <div class="modal-content">
-                <h2>Listings for {{ selectedItem }}</h2>
+        <div v-if="showModal" class="modal-overlay-item-listing">
+            <div class="modal-content-buy-list">
+                <div class = "modal-content-buy-list-header">
+                    <h2>Listings for {{ selectedItem }}</h2>
+                    <button class="close-btn" @click="closeModal">Close</button>
+                </div>
+
                 <div class="listings-container">
                     <div v-for="listing in filteredListings" :key="listing.id" class="listing-row">
                         <img :src="listing.image" :alt="listing.item_name" class="listing-image-small" />
@@ -195,13 +224,13 @@ export default {
                             <p class="listRarity"><strong>Rarity:</strong> {{ listing.rarity }}</p>
                             <p class="listDescription">{{ listing.description }}</p>
                             <p class="listQuantity"><strong>Quantity:</strong> {{ listing.quantity }}</p>
-                            <p class="listPrice"><strong>Price:</strong> {{ listing.price }} coins</p>
+                            <p class="listPrice"><strong>Price:</strong> {{ listing.price * listing.quantity }} coins</p>
                             <p class="listSeller"><strong>Seller:</strong> {{ listing.username }}</p>
-                            <button @click="buyItem(listing.id)">Buy</button>
+                            <button @click="handleBuyItem(listing)">Buy</button>
                         </div>
                     </div>
                 </div>
-                <button class="close-btn" @click="closeModal">Close</button>
+
             </div>
         </div>
     </div>
@@ -212,12 +241,17 @@ export default {
     text-align: center;
     background-color: whitesmoke;
     padding: 20px;
-    margin-top: 140px;
+    text-align: center;
     min-width: 1200px;
+    margin-right: 125px;
+    margin-top: 120px;
+    border: #2c3e50 2px solid;
+    //overflow-y: auto;
+    //overflow-x: hidden;
+    max-height: 650px;
+    min-height: 650px;
     max-width: 1200px;
-    min-height: 800px;
-    max-height: 800px;
-
+    background-color: whitesmoke;
 }
 .toggle-buttons {
     margin-bottom: 20px;
@@ -234,15 +268,15 @@ export default {
     background-color: #2E7D32;
 }
 .sell-container {
-    align-items: center; /* Centers content horizontally */
-    padding: 0px;
+    align-items: center;
+    padding: 0;
     min-width: 1000px;
-    min-height: 600px;
+    min-height: 480px;
     justify-items: center;
+    max-height: 480px;
+    max-width: 1200px;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: 600px;
-    max-width: 1200px;
 
 }
 
@@ -253,20 +287,22 @@ export default {
     gap: 10px; /* Adds spacing between items */
     min-width: 1000px;
     max-width: 1000px;
-    max-height: 800px;
-    min-height: 800px;
+    max-height: 600px;
+    min-height: auto;
 
 }
 
 .sell-slot {
     display: flex;
-    flex-direction: column;
+    justify-content: space-between;
     align-items: center;
     background: #f8f9fa;
     padding: 15px;
     border-radius: 10px;
-    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     text-align: center;
+    min-height: 100px;
+    max-height: 100px;
     width: 100%;
 
     //min-height: 100px;
@@ -280,33 +316,57 @@ export default {
     border-radius: 5px;
 }
 
-.place-button {
-    background-color: #FF9800;
-    color: white;
-    border: none;
-    padding: 10px 15px;
-    margin-top: 20px;
-    cursor: pointer;
-}
-
 button:hover {
     opacity: 0.9;
 }
+.modal-content-buy-list {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: fixed;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: fixed;
+    left: 160px;
+    max-width: 1200px;
+    min-width: 1200px;
+    min-height: 520px;
+    max-height: 520px;
+    border: black solid 2px;
+}
 
+.modal-content-buy-list .close-btn{
+    position: fixed;
+    top: 600px;
+    right: 725px;
+}
 
 .listing-grid {
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    justify-content: center;
+    gap: 10px;
+    justify-content: start;
+    min-height: auto;
+    max-height: 450px;
+    overflow-y: auto;
+    overflow-x: hidden;
+
+}
+.view-listing-btn{
+position: fixed;
+    margin-top: -20px;
+
 }
 
 .listing-card {
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 5px;
-    width: 1160px;
+    width: 1140px;
     text-align: center;
+
     background-color: white;
     min-height: 80px;
     max-height: 100px;
@@ -315,7 +375,7 @@ button:hover {
 .listing-image {
     position: relative;
     left: -500px;
-    top: 0px;
+    top: 0;
     width: 70px;
     height: 70px;
     border-radius: 5px;
@@ -333,41 +393,15 @@ button:hover {
     background-color: #45a049;
 }
 
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
 
-.modal-content {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    text-align: center;
-    margin-top: 140px;
-    margin-left: 15px;
-    max-width: 1200px;
-    min-width: 1200px;
-    min-height: auto;
-    max-height: 800px;
-}
 
 .listings-container {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 10px;
+    flex-grow: 1;  /* Takes up remaining space */
     overflow-y: auto;
-    max-height: 800px;
-    min-height: auto;
-    overflow-x: hidden;
-
+    overflow-x: hidden;/* Enables scrolling */
+    min-height: 400px;  /* Ensures it fills the modal */
+    max-height: 400px;  /* Ensures it fills the modal */
+    padding: 10px;
 }
 
 .listing-row {
@@ -398,10 +432,15 @@ button:hover {
 }
 
 .close-btn {
+    position: absolute;
+    top: 0px;
+    right: 30px;
     background-color: red;
     color: white;
     padding: 8px 12px;
-    margin-top: 15px;
+    border: none;
+    cursor: pointer;
+    font-weight: bold;
 }
 .listing-card .itemNameH3 {
     position: relative;
@@ -460,7 +499,8 @@ button:hover {
 .listing-row .listing-image-small{
     height: auto;
     max-width: 80px;
-    .sell-slot {
+
+.sell-slot {
         width: 120px;
         height: 120px;
         border: 2px dashed #ccc;
@@ -478,26 +518,78 @@ button:hover {
 }
 .modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: rgba(0, 0, 0, 0.5);
+    top: 100px;
+    margin:auto;
+    max-height: 600px;
+    min-height: 600px;
+    min-width: 1200px;
+    max-width: 1200px;
+
     display: flex;
     align-items: center;
-    justify-content: center;
-    z-index: 1000;
-}
+    justify-items: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+}.modal-overlay-item-listing {
+    position: fixed;
+    top: 100px;
+    right: 190px;
 
-/* Modal container */
-.modal-content {
+    max-height: 600px;
+    min-height: 600px;
+    min-width: 1200px;
+    max-width: 1200px;
+
+    display: flex;
+    align-items: center;
+    justify-items: center;
+
+
+}
+.modal-content-sell-list {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: fixed;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    text-align: center;
+    position: fixed;
+    left: 160px;
+    max-width: 1200px;
+    min-width: 1200px;
+    min-height: 520px;
+    max-height: 520px;
+    border: black solid 2px;
+
+}
+.modal-content-sell-list .close-btn{
+    position: fixed;
+    top: 600px;
+    right: 725px;
+}
+.modal-content-sell-input{
+    position: fixed;
     background: white;
     padding: 20px;
     border-radius: 8px;
     width: 50%;
+    right:500px;
     max-width: 600px;
     box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
 }
+
+.item-list{
+    flex-grow: 1;  /* Takes up remaining space */
+    overflow-y: auto;
+    overflow-x: hidden;/* Enables scrolling */
+    min-height: 400px;  /* Ensures it fills the modal */
+    max-height: 400px;  /* Ensures it fills the modal */
+    padding: 10px;
+
+}
+
 
 /* Flex container for each item */
 .item {
@@ -507,6 +599,7 @@ button:hover {
     gap: 15px;
     padding: 10px;
     border-bottom: 1px solid #ccc;
+
 }
 
 /* Item image styling */
@@ -517,36 +610,8 @@ button:hover {
     border-radius: 5px;
 }
 
-/* Details container */
-.item-details {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    width: 100%;
-    align-items: center;
-}
 
-/* Individual item details */
-.item-name {
-    font-size: 1rem;
-    font-weight: bold;
-    flex: 1;
-}
 
-.item-rarity {
-    flex: 1;
-    text-align: center;
-    font-size: 0.9rem;
-    color: #777;
-}
-
-.item-quantity {
-    flex: 1;
-    text-align: right;
-    font-weight: bold;
-}
-
-/* Close button */
 button {
     margin-top: 15px;
     padding: 8px 15px;

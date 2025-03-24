@@ -44,16 +44,18 @@ export default {
 
 <style scoped>
 .inventory-container {
-    min-width: 1200px;
-    margin: 0 0;
-    margin-top: 100px;
     padding: 20px;
-    border: black 2px solid;
     text-align: center;
-    background-color: whitesmoke;
-    max-height: 800px;
+    min-width: 1200px;
+    margin-right: 125px;
+    margin-top: 120px;
+    border: #2c3e50 2px solid;
     overflow-y: auto;
     overflow-x: hidden;
+    max-height: 650px;
+    min-height: 650px;
+    max-width: 1200px;
+    background-color: whitesmoke;
 }
 .item-list {
     display: flex;

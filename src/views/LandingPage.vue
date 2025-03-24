@@ -38,13 +38,6 @@ const authStore = useAuthStore();
                 </ul>
             </div>
         </div>
-
-        <div class="cta">
-            <button v-if="!authStore.isAuthenticated" @click="authStore.login">
-                Get Started Now
-            </button>
-            <p v-else>Welcome back, {{ authStore.user.name }}!</p>
-        </div>
     </div>
 </template>
 

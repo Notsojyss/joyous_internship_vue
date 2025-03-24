@@ -157,6 +157,8 @@ export const useAuthStore = defineStore("auth", {
 
         async cancelListing(listingId) {
             try {
+                const confirmCancel = confirm("Are you sure you want to cancel?");
+                if (!confirmCancel) return;
                 const token = localStorage.getItem("auth_token");
 
                 if (!token) {
@@ -176,6 +178,7 @@ export const useAuthStore = defineStore("auth", {
                     }
                 );
                 alert(response.data.message);
+                console.log("Successfully Cancelled Selling an Item")
                 await this.fetchUserItems();
                 await this.fetchListings();
                 await this.fetchUserItemsForSale();
@@ -216,10 +219,38 @@ export const useAuthStore = defineStore("auth", {
                 }
             });
             this.groupedListings = Object.values(uniqueItems);
-        }
-
-
-
-
+        },
+        async buyItem({ id, quantity, fromMarket = true, idType = "listing_id" }) {
+            try {
+                const token = localStorage.getItem("auth_token");
+                if (!token) {
+                    console.error("No authentication token found");
+                    return;
+                }
+                const requestData = {
+                    [idType]: id,
+                    quantity,
+                    from_market: fromMarket,
+                };
+                const response = await axios.post(
+                    "http://joyous-internship-api-local.com/api/buy-item",
+                    requestData,
+                    { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
+                );
+                this.fetchListings();
+                alert(response.data.message);
+            } catch (error) {
+                if (error.response.status === 400) {
+                    alert(error.response.data.error); // Show "Not enough money"
+                }else if (error.response.status === 401) {
+                    alert("Unauthorized. Please log in.");
+                } else if (error.response.status === 404) {
+                    alert("Item or listing not found.");
+                } else {
+                    alert("An unexpected error occurred. Please try again.");
+                }
+                console.error("Error purchasing item:", error.response?.data || error.message);
+            }
+        },
     }
 });

@@ -48,41 +48,14 @@ export default {
                 this.quantities[itemId]--;
             }
         },
+        async handleBuyItemfromShop(item){
+            this.authStore.buyItem( {id: item.id, quantity: this.quantities[item.id], idType: 'item_id', fromMarket: false });
+            this.authStore.fetchMoney();
 
-        async buyItem(item) {
-            try {
-                const token = localStorage.getItem("auth_token"); // Retrieve token from localStorage
 
-                if (!this.user?.id) {
-                    alert("Please log in to purchase an item.");
-                    return;
-                }
-
-                const quantity = this.quantities[item.id]; // Get selected quantity
-
-                const response = await axios.post(
-                    "http://joyous-internship-api-local.com/api/user/buy-item",
-                    {
-                        item_id: item.id,
-                        quantity: quantity // ✅ Ensure selected quantity is sent
-                    },
-                    {
-                        headers: {
-                            "Content-Type": "application/json",
-                            Authorization: `Bearer ${token}`
-                        }
-                    }
-                );
-
-                alert(response.data.message);
-                this.authStore.fetchMoney();
-            } catch (error) {
-                console.error("Error buying item:", error);
-                alert("Failed to buy item: Not enough money")
-                console.error("Failed to buy item: " + (error.response?.data?.error || error.message));
-            }
         }
     }
+
 };
 </script>
 
@@ -106,7 +79,7 @@ export default {
                 </div>
 
                 <br />
-                <button @click="buyItem(item)">Buy</button>
+                <button @click="handleBuyItemfromShop(item)">Buy</button>
             </div>
         </div>
     </div>
@@ -117,13 +90,14 @@ export default {
 .shop-container {
     padding: 20px;
     text-align: center;
-    width: 1200px;
+    min-width: 1200px;
     margin-right: 125px;
     margin-top: 120px;
     border: #2c3e50 2px solid;
     overflow-y: auto;
     overflow-x: hidden;
-    max-height: 800px;
+    max-height: 650px;
+    min-height: 650px;
     max-width: 1200px;
     background-color: whitesmoke;
 }
