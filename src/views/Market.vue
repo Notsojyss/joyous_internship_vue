@@ -10,6 +10,7 @@ export default {
         const userItemsForSale = computed(() => authStore.userItemsForSale);
         const items = computed(() => authStore.items);
         const listings = computed(() => authStore.listings);
+        const itemhistory = computed(() => authStore.itemhistory);
         const groupedListings = computed(() => authStore.groupedListings);
         const showItems = ref(false);
         onMounted(() => {
@@ -17,7 +18,7 @@ export default {
             authStore.fetchUserItems();
             authStore.fetchListings();
         });
-        return { authStore,userItemsForSale,showItems,items,listings, groupedListings  };
+        return { authStore,userItemsForSale,showItems,items,listings, groupedListings,itemhistory  };
     },
     data() {
         return {
@@ -28,12 +29,18 @@ export default {
             filteredListings: [],
             showSellModal: false,
             sellQuantity: 1,
-            sellPrice: 0
+            sellPrice: 0,
+            showHistory: false
         };
     },
     computed: {
         user() {
             return this.authStore.user;
+        },
+        filteredListings() {
+            return this.listings.filter(listing =>
+                this.selectedItem && listing.item_name === this.selectedItem.name
+            );
         }
     },
     methods: {
@@ -43,28 +50,12 @@ export default {
             this.sellPrice = 0;
             this.showSellModal = true;
         },
-
-
-        // groupListings() {
-        //     const uniqueItems = {};
-        //     this.listings.forEach(listing => {
-        //         if (!uniqueItems[listing.item_name]) {
-        //             uniqueItems[listing.item_name] = {
-        //                 item_name: listing.item_name,
-        //                 description: listing.description,
-        //                 rarity: listing.rarity,
-        //                 image: listing.image
-        //             };
-        //         }
-        //     });
-        //     this.groupedListings = Object.values(uniqueItems);
-        // },
         handlePlaceClick() {
             this.authStore.fetchUserItems();
             this.showItems = true;
         },
-        openModal(itemName) {
-            this.selectedItem = itemName;
+        openModal(itemName, itemId) {
+            this.selectedItem = { name: itemName, id: itemId }; // Store both item name and ID
             this.filteredListings = this.listings.filter(listing => listing.item_name === itemName);
             this.showModal = true;
             this.authStore.fetchListings();
@@ -75,26 +66,16 @@ export default {
             this.selectedItem = null;
             this.filteredListings = [];
         },
+        async showHistoryModal(){
 
-        // async buyItem(listingId, quantity) {
-        //     try {
-        //         const token = localStorage.getItem("auth_token");
-        //         if (!token) {
-        //             console.error("No authentication token found");
-        //             return;
-        //         }
-        //
-        //         const response = await axios.post( "http://joyous-internship-api-local.com/api/buy-item",
-        //             { listing_id: listingId, quantity, from_market: true },
-        //             { headers: { Authorization: `Bearer ${token}`, Accept: "application/json" } }
-        //         );
-        //
-        //         alert(response.data.message);
-        //
-        //     } catch (error) {
-        //         console.error("Error purchasing item:", error.response?.data || error.message);
-        //     }
-        // },
+          this.showHistory = true;
+            await this.authStore.fetchItemHistory(this.selectedItem.id);
+        },
+        async closeHistoryModal(){
+
+          this.showHistory = false;
+        },
+
         async handleSellItem() {
             try {
                 await this.authStore.sellItem(this.selectedItem.item_id, this.sellQuantity, this.sellPrice);
@@ -111,10 +92,16 @@ export default {
 
         },
          async handleBuyItem (listing){
-            this.authStore.buyItem( {id: listing.id, quantity: listing.quantity, idType: 'listing_id'});
+        try {
+            await this.authStore.buyItem( {id: listing.id, quantity: listing.quantity, idType: 'listing_id'});
              await this.authStore.fetchListings();
            await this.authStore.fetchMoney();
+
+            this.filteredListings = this.listings.filter(listing => listing.item_name === this.selectedItem.name);
+        } catch (error) {
+            console.error("Purchase failed:", error);
         }
+        },
 
     }
 };
@@ -136,7 +123,7 @@ export default {
                     <img :src="item.image" :alt="item.item_name" class="listing-image" />
                     <h3 class="itemNameH3">ITEM</h3>
                     <h2 class="itemNametext">{{ item.item_name }}</h2>
-                    <button class = "view-listing-btn" @click="openModal(item.item_name)">View Listings</button>
+                    <button class = "view-listing-btn" @click="openModal(item.item_name, item.item_id)">View Listings</button>
                 </div>
             </div>
             <p v-else>No active listings available.</p>
@@ -172,7 +159,7 @@ export default {
                 <div class="modal-content-sell-list" @click.stop>
                     <div class = "modal-content-sell-list-header">
                         <h3>Select an Item to Sell:</h3>
-                        <button @click="showItems = false">Close</button>
+                        <button class = "modal-content-sell-list-close-btn"@click="showItems = false">Close</button>
                     </div>
                     <div v-if="items.length > 0" class="item-list">
                         <div v-for="item in items" :key="item.id" class="item">
@@ -210,10 +197,54 @@ export default {
 
         <!-- Modal for Item Listings -->
         <div v-if="showModal" class="modal-overlay-item-listing">
+
             <div class="modal-content-buy-list">
                 <div class = "modal-content-buy-list-header">
-                    <h2>Listings for {{ selectedItem }}</h2>
+                    <h2>Listings for {{ selectedItem.name }}</h2>
+
                     <button class="close-btn" @click="closeModal">Close</button>
+                    <button @click = "showHistoryModal()"> History </button>
+                </div>
+
+                <!-- History Overlay Pop-Up -->
+                <div v-if="showHistory" class="overlay">
+                    <div class="popup">
+                        <div class="popup-header">
+                            <h3>Item History</h3>
+                            <button class="show-history-close-btn" @click="closeHistoryModal()">Close</button>
+                        </div>
+
+                        <div class="market-history-loading" v-if="loading">Loading history...</div>
+
+                        <div v-else-if="itemhistory.length > 0" class="market-history-container">
+                            <table class="market-history-table">
+                                <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Item Name</th>
+                                    <th>Price Per Item</th>
+                                    <th>Quantity</th>
+                                    <th>Updated At</th>
+                                    <th>Username</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr v-for="history in itemhistory" :key="history.id">
+                                    <td>{{ history.id }}</td>
+                                    <td>{{ history.item_name }}</td>
+                                    <td>{{ history["price per item"] }}</td>
+                                    <td>{{ history.quantity }}</td>
+                                    <td>{{ history.market_updated_at }}</td>
+                                    <td>{{ history.username }}</td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div v-else class="no-history-message">
+                            No history available.
+                        </div>
+                    </div>
                 </div>
 
                 <div class="listings-container">
@@ -222,7 +253,7 @@ export default {
                         <div class="listing-details">
                             <h3 class="listItemname">{{ listing.item_name }}</h3>
                             <p class="listRarity"><strong>Rarity:</strong> {{ listing.rarity }}</p>
-                            <p class="listDescription">{{ listing.description }}</p>
+                            <p class="listDescription">Description: {{ listing.description }}</p>
                             <p class="listQuantity"><strong>Quantity:</strong> {{ listing.quantity }}</p>
                             <p class="listPrice"><strong>Price:</strong> {{ listing.price * listing.quantity }} coins</p>
                             <p class="listSeller"><strong>Seller:</strong> {{ listing.username }}</p>
@@ -231,9 +262,12 @@ export default {
                     </div>
                 </div>
 
+                </div>
+
             </div>
+
         </div>
-    </div>
+
 </template>
 <style scoped>
 
@@ -368,7 +402,7 @@ position: fixed;
     text-align: center;
 
     background-color: white;
-    min-height: 80px;
+    min-height: 100px;
     max-height: 100px;
 }
 
@@ -460,21 +494,25 @@ button:hover {
 }
 .listing-details .listItemname{
     position: relative;
-    top: 90px;
-    right: -10px;
+    text-align: center;
+    top: 105px;
+    right: 10px;
+    width: 100px;
 
 
 }
 .listing-details .listRarity{
     position: relative;
-    top: 63px;
-    right: -150px;
+    top: 65px;
+    right: -95px;
+    width: 100px;
 
 }
 .listing-details .listDescription{
     position: relative;
+    text-align: center;
     top: 25px;
-    right: -270px;
+    right: -200px;
     width: 200px;
 }
 .listing-details .listQuantity{
@@ -564,11 +602,12 @@ button:hover {
     border: black solid 2px;
 
 }
-.modal-content-sell-list .close-btn{
+.modal-content-sell-list .modal-content-sell-list-close-btn{
     position: fixed;
     top: 600px;
     right: 725px;
 }
+
 .modal-content-sell-input{
     position: fixed;
     background: white;
@@ -626,6 +665,93 @@ button:hover {
     background: #c9302c;
 }
 
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popup {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    min-width: 800px;
+    animation: fadeIn 0.3s ease-in-out;
+    min-height: 400px;
+    max-height: 400px;
+}
+
+.popup-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+.market-history-container{
+    min-height:280px;
+    max-height: 280px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.market-history-table {
+    width: 100%;
+    border-collapse: collapse;
+
+}
+
+.market-history-table th, .market-history-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+
+
+}
+
+.market-history-table th {
+    background-color: #f4f4f4;
+}
+
+.show-history-close-btn {
+    position: relative;
+    top: 335px;
+    right: 50px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 6px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+.no-history-message {
+    text-align: center;
+    padding: 10px;
+    color: #777;
+}
+
+/* Fade-in animation */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
 
 </style>
 

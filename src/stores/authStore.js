@@ -9,7 +9,8 @@ export const useAuthStore = defineStore("auth", {
         items: [],
         userItemsForSale: [],
         listings: [],
-        groupedListings: []
+        groupedListings: [],
+        itemhistory: []
     }),
     actions: {
         login(userData, token) {
@@ -211,6 +212,8 @@ export const useAuthStore = defineStore("auth", {
             this.listings.forEach(listing => {
                 if (!uniqueItems[listing.item_name]) {
                     uniqueItems[listing.item_name] = {
+                        id: listing.id,
+                        item_id: listing.item_id,
                         item_name: listing.item_name,
                         description: listing.description,
                         rarity: listing.rarity,
@@ -252,5 +255,27 @@ export const useAuthStore = defineStore("auth", {
                 console.error("Error purchasing item:", error.response?.data || error.message);
             }
         },
+        async fetchItemHistory(itemId) {
+            try {
+                const token = localStorage.getItem("auth_token");
+                if (!token) {
+                    console.error("No authentication token found");
+                    return;
+                }
+
+                const response = await axios.get(`http://joyous-internship-api-local.com/api/market/get-itemhistory`, {
+                    headers: { Authorization: `Bearer ${token}`, Accept: "application/json" },
+                    params: { item_id: itemId }
+                });
+
+
+                this.itemhistory = response.data; // Store fetched history
+                console.log("Item History:", JSON.stringify(this.itemhistory, null, 2));
+
+
+            } catch (error) {
+                console.error("Error fetching item history:", error.response?.data || error.message);
+            }
+        }
     }
 });

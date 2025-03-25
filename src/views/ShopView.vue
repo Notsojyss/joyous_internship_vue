@@ -49,8 +49,8 @@ export default {
             }
         },
         async handleBuyItemfromShop(item){
-            this.authStore.buyItem( {id: item.id, quantity: this.quantities[item.id], idType: 'item_id', fromMarket: false });
-            this.authStore.fetchMoney();
+           await this.authStore.buyItem( {id: item.id, quantity: this.quantities[item.id], idType: 'item_id', fromMarket: false });
+            await this.authStore.fetchMoney();
 
 
         }
