@@ -41,6 +41,16 @@ export default {
             return this.listings.filter(listing =>
                 this.selectedItem && listing.item_name === this.selectedItem.name
             );
+        },
+        listingCounts() {
+            const counts = {};
+            this.listings.forEach(listing => {
+                if (!counts[listing.item_id]) {
+                    counts[listing.item_id] = 0;
+                }
+                counts[listing.item_id] += 1;
+            });
+            return counts;
         }
     },
     methods: {
@@ -121,6 +131,7 @@ export default {
             <div v-if="groupedListings.length > 0" class="listing-grid">
                 <div v-for="item in groupedListings" :key="item.item_name" class="listing-card">
                     <img :src="item.image" :alt="item.item_name" class="listing-image" />
+                    <h3 class="itemListing">Available Listing {{ listingCounts[item.item_id] || 0 }}</h3>
                     <h3 class="itemNameH3">ITEM</h3>
                     <h2 class="itemNametext">{{ item.item_name }}</h2>
                     <button class = "view-listing-btn" @click="openModal(item.item_name, item.item_id)">View Listings</button>
@@ -196,6 +207,7 @@ export default {
 
 
         <!-- Modal for Item Listings -->
+
         <div v-if="showModal" class="modal-overlay-item-listing">
 
             <div class="modal-content-buy-list">
@@ -220,17 +232,16 @@ export default {
                             <table class="market-history-table">
                                 <thead>
                                 <tr>
-                                    <th>ID</th>
+
                                     <th>Item Name</th>
                                     <th>Price Per Item</th>
                                     <th>Quantity</th>
-                                    <th>Updated At</th>
+                                    <th>Sold on</th>
                                     <th>Username</th>
                                 </tr>
                                 </thead>
                                 <tbody>
                                 <tr v-for="history in itemhistory" :key="history.id">
-                                    <td>{{ history.id }}</td>
                                     <td>{{ history.item_name }}</td>
                                     <td>{{ history["price per item"] }}</td>
                                     <td>{{ history.quantity }}</td>
@@ -380,12 +391,13 @@ button:hover {
 .listing-grid {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
     justify-content: start;
-    min-height: auto;
+    min-height: 450px;
     max-height: 450px;
     overflow-y: auto;
     overflow-x: hidden;
+    border: black solid 2px;
 
 }
 .view-listing-btn{
@@ -398,9 +410,9 @@ position: fixed;
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 5px;
-    width: 1140px;
+    width: 1155px;
     text-align: center;
-
+    border: black solid 2px;
     background-color: white;
     min-height: 100px;
     max-height: 100px;
@@ -433,8 +445,8 @@ button:hover {
     flex-grow: 1;  /* Takes up remaining space */
     overflow-y: auto;
     overflow-x: hidden;/* Enables scrolling */
-    min-height: 400px;  /* Ensures it fills the modal */
-    max-height: 400px;  /* Ensures it fills the modal */
+    min-height: 360px;
+    max-height: 360px;
     padding: 10px;
 }
 
@@ -478,17 +490,23 @@ button:hover {
 }
 .listing-card .itemNameH3 {
     position: relative;
-    top: -95px;
+    top: -115px;
     font-weight: bold;
+}
+.listing-card .itemListing {
+    position: relative;
+    top: -54px;
+    right: -330px;
+    font-size: 14px;
 }
 .listing-card .itemNametext {
     position: relative;
-    top: -90px;
+    top: -112px;
     font-weight: bold;
 }
 .listing-card button {
     position: relative;
-    top: -125px;
+    top: -143px;
     right: -500px;
     font-weight: bold;
 }
@@ -562,6 +580,7 @@ button:hover {
     min-height: 600px;
     min-width: 1200px;
     max-width: 1200px;
+
 
     display: flex;
     align-items: center;

@@ -5,16 +5,7 @@ import { useAuthStore } from '@/stores/authStore.js';
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-        {
-            name: "Calculator",
-            path: "/calculatorApp",
-            component: ()=>import('@/components/Unnecessary/calculatorApp.vue')
-        },
-        {
-            name: "About",
-            path: "/about",
-            component: ()=>import('@/views/AboutView.vue')
-        },
+
         {
             name: "registrationform",
             path: "/registrationform",
@@ -51,17 +42,11 @@ const router = createRouter({
             meta: { requiresAuth: true }
         },
         {
-            name: "Buyingcomponent",
-            path: "/buyingcomponent",
-            component: ()=>import('@/components/marketcomponents/Buyingcomponent.vue'),
+            name: "PvpBattle",
+            path: "/pvp",
+            component: ()=>import('@/views/PvpBattle.vue'),
             meta: { requiresAuth: true }
-        },{
-            name: "Sellingcomponent",
-            path: "/sellingcomponent",
-            component: ()=>import('@/components/marketcomponents/Sellingcomponent.vue'),
-            meta: { requiresAuth: true }
-        },
-
+        }
 
     ],
 })

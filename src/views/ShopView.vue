@@ -74,12 +74,12 @@ export default {
                 <!-- Quantity Input -->
                 <div class="quantity-container">
                     <button @click="decreaseQuantity(item.id)">-</button>
-                    <input type="number" v-model="quantities[item.id]" min="1" />
+                    <input type="number" v-model="quantities[item.id]" min="1" disabled />
                     <button @click="increaseQuantity(item.id)">+</button>
                 </div>
 
                 <br />
-                <button @click="handleBuyItemfromShop(item)">Buy</button>
+                <button class="item-list-buy-btn" @click="handleBuyItemfromShop(item)">Buy</button>
             </div>
         </div>
     </div>
@@ -142,4 +142,26 @@ export default {
     font-size: 11px;
     height: auto;
 }
+ .item-list-buy-btn{
+    position: relative;
+    top: -20px;
+     color: white;
+     border: none;
+     cursor: pointer;
+     font-weight: bold;
+     width: 60px;
+     letter-spacing: 2px;
+     padding: 6px 10px;
+     background: #d9534f;
+     border-radius: 4px;
+
+}
+
+ .quantity-container input{
+    height: 20px;
+     width: 50px;
+     text-align: center;
+     padding-left: 15px;
+     background-color: transparent;
+ }
 </style>

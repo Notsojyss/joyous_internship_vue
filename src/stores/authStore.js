@@ -10,7 +10,7 @@ export const useAuthStore = defineStore("auth", {
         userItemsForSale: [],
         listings: [],
         groupedListings: [],
-        itemhistory: []
+        itemhistory: [],
     }),
     actions: {
         login(userData, token) {
@@ -276,6 +276,6 @@ export const useAuthStore = defineStore("auth", {
             } catch (error) {
                 console.error("Error fetching item history:", error.response?.data || error.message);
             }
-        }
+        },
     }
 });
