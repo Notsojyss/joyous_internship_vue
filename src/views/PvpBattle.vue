@@ -10,6 +10,7 @@ export default {
         const authStore = useAuthStore();
         const pvpStore = usePvpStore();
         const pvpbattles = computed(() => pvpStore.pvpbattles);
+        const pvphistory = computed(() => pvpStore.pvphistory);
         const winMessage = computed(() => pvpStore.winMessage);
         const showWinMessage = computed(() => pvpStore.showWinMessage);
 
@@ -19,15 +20,28 @@ export default {
 
 
         });
-        return {authStore, pvpStore, pvpbattles, winMessage, showWinMessage};
+        return {authStore, pvpStore, pvpbattles, winMessage, showWinMessage,pvphistory};
     },
     data() {
         return {
             showPickPlayModal: false,
             selectedPvpId: null,
+            selectedPvpUsername: null,
+            selectedPvpMoneybetted: null,
             showCreateBattleModal: false,
             selectedPlay: null, // Stores selected play
+            selectedPvpIdHostPlay: null, // Stores selected play
             selectedBet: null,
+            showHistory: false,
+            hostPlay: null,
+            hoveredPlay: null,  // Tracks hovered play
+            playConfirmed: false, // Tracks if play is selected
+            playImages : {
+                Rock: "/src/assets/rock.png",
+                Paper: "/src/assets/paper.png",
+                Scissor: "/src/assets/scissor.png",
+                Default: "/src/assets/questionmark.png",
+            }
         }
     },
     computed: {
@@ -39,8 +53,7 @@ export default {
         }
     },
     methods: {
-        async handleJoin(user_id, pvpId) {
-
+        async handleJoin(user_id, pvpId, money_betted, username) {
             const canJoin = await this.checkUserisNotHost(user_id, pvpId);
             if (!canJoin) {
                 alert("You cannot join your own battle.");
@@ -52,9 +65,14 @@ export default {
                 alert("You do not have enough money to join this battle.");
                 return;
             }
-
+            this.selectedPvpMoneybetted =  money_betted;
+            this.selectedPvpUsername = username;
             this.showPickPlayModal = true;
             this.selectedPvpId = pvpId;
+
+            this.selectedPvpIdHostPlay = await this.pvpStore.fetchHostPlay(pvpId);
+            console.log("Host Play:", this.selectedPvpIdHostPlay);
+
         },
 
         async checkUserisNotHost(   user_id, pvpId) {
@@ -80,30 +98,31 @@ export default {
                 return false;
             }
 
-            console.log(`User Money (after fetch): ${this.authStore.money}, Required Bet: ${battle.money_betted}`);
+            console.log(`User Money: ${this.authStore.money}, Required Bet: ${battle.money_betted}`);
 
             return this.authStore.money >= battle.money_betted;
         }
-
-
-
-
-
-
-
         ,
         handleSelectPlay(play) {
             if (confirm(`Are you sure you want to select "${play}"?`)) {
+                this.selectedPlay = this.selectedPvpIdHostPlay; // Store selected play for host
+                this.playConfirmed = true;
                 this.pvpStore.selectPlay(play, this.selectedPvpId);
 
             }
         },
-        async handleMessage() {
-
-            await this.pvpStore.clearWinMessage();
-            await this.authStore.fetchMoney();
-            this.showPickPlayModal = false;
+         async handleClose() {
             await this.pvpStore.fetchPvpBattles();
+            await this.authStore.fetchMoney();
+             await this.pvpStore.clearWinMessage();
+             this.showPickPlayModal = false;
+             this.selectedPlay = null;
+             this.hoveredPlay = null;
+             this.playConfirmed = false;
+
+
+
+
         },
        async handleCreateBattle(play,money_betted) {
             if (!this.selectedPlay || !this.selectedBet) {
@@ -117,6 +136,15 @@ export default {
            await this.authStore.fetchMoney();
 
 
+        },
+        async showHistoryModal(){
+
+            this.showHistory = true;
+            await this.pvpStore.fetchPvpHistory();
+        },
+        async closeHistoryModal(){
+
+            this.showHistory = false;
         }
 
 
@@ -131,6 +159,7 @@ export default {
     <div class="container">
         <h2 class="title">PVP BATTLES</h2>
         <button class="join-btn"  @click="showCreateBattleModal = true">Create Battle</button>
+        <button class="join-btn" @click="showHistoryModal()"> History </button>
         <div v-if="pvpbattles.length > 0" class="listing-grid">
             <div v-for="pvp in pvpbattles" :key="pvp.id" class="listing-card">
                 <div class="listing-header">
@@ -140,12 +169,116 @@ export default {
                 <div>  <img src="../assets/pvpgame.png" alt="Market" class="nav-icon" /></div>
                 <div class="listing-body">
                     <p class="wager">💰 Money Wager: <strong>{{ pvp.money_betted }}</strong></p>
-                    <button class="join-btn" @click= "handleJoin(user.id,pvp.id)">Join Battle</button>
+
+                    <button class="join-btn" @click= "handleJoin(user.id,pvp.id,pvp.money_betted,pvp.username )">Join Battle</button>
                 </div>
             </div>
         </div>
         <p v-else class="no-listing">No active listings available.</p>
     </div>
+
+
+    <div v-if="showHistory" class="overlay-history">
+        <div class="popup-history">
+            <div class="popup-header">
+                <h3>PVP BATTLES History</h3>
+                <button class="show-history-close-btn" @click="closeHistoryModal()">Close</button>
+            </div>
+
+            <div class="market-history-loading" v-if="loading">Loading history...</div>
+
+            <div v-else-if="pvphistory.length > 0" class="market-history-container">
+                <table class="market-history-table">
+                    <thead>
+                    <tr>
+
+                        <th>Host</th>
+                        <th>Versus</th>
+                        <th>Opponent</th>
+                        <th>Bet</th>
+                        <th>Winner</th>
+                        <th>Date</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="pvp in pvphistory" :key="pvp.id">
+                        <td>{{ pvp.hostname }}</td>
+                        <td>VS</td>
+                        <td>{{ pvp.opponentname }}</td>
+                        <td>{{ pvp.money_betted }}</td>
+                        <td>{{ pvp.winnername }}</td>
+                        <td>{{ pvp.battletime }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div v-else class="no-history-message">
+                No history available.
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
+
+
+    <!--          Modal For Picking a Play opponents joining a Battle              -->
+    <div v-if="showPickPlayModal" class="modal-overlay-bg">
+        <div class="modal-pick-play">
+            <div class="modal-pick-play-header">
+                <h3>Select your Play:</h3>
+                <button class="modal-play-close-btn" @click="handleClose()">Close</button>
+            </div>
+
+            <!-- Play Selection List -->
+            <div class="play-selection-list">
+                <!-- Host play image remains a question mark until play is selected -->
+                <img class="hostplayimg" :src="playImages[selectedPlay || 'Default']" alt="Host Play" />
+
+                <!-- Opponent play image changes on hover -->
+                <img class="opponentplayimg" :src="hoveredPlay ? playImages[hoveredPlay] : playImages['Default']" alt="Opponent Play" />
+
+                <p>Bet: {{ selectedPvpMoneybetted }}</p>
+                <p class="pvpresult">{{ this.pvpStore.winMessage }}</p>
+
+                <!-- Play Options -->
+                <div v-if="!playConfirmed">
+                    <button
+                        @mouseover="hoveredPlay = 'Rock'"
+                        @mouseleave="hoveredPlay = null"
+                        @click="handleSelectPlay('Rock')"
+                        class="play-option">
+                        <img :src="playImages['Rock']" alt="Rock" />
+                        <h3>Rock</h3>
+                    </button>
+
+                    <button
+                        @mouseover="hoveredPlay = 'Paper'"
+                        @mouseleave="hoveredPlay = null"
+                        @click="handleSelectPlay('Paper')"
+                        class="play-option">
+                        <img :src="playImages['Paper']" alt="Paper" />
+                        <h3>Paper</h3>
+                    </button>
+
+                    <button
+                        @mouseover="hoveredPlay = 'Scissor'"
+                        @mouseleave="hoveredPlay = null"
+                        @click="handleSelectPlay('Scissor')"
+                        class="play-option">
+                        <img :src="playImages['Scissor']" alt="Scissors" />
+                        <h3>Scissor</h3>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <p v-else hidden></p>
 
 
 
@@ -160,12 +293,15 @@ export default {
         <div class="modal-create-battle-options">
             <button @click="selectedPlay = 'Rock'" class="play-option" :class="{ selected: selectedPlay === 'Rock' }">
                 <img src="../assets/rock.png" alt="Rock" />
+                <h3> Rock </h3>
             </button>
             <button @click="selectedPlay = 'Paper'" class="play-option" :class="{ selected: selectedPlay === 'Paper' }">
                 <img src="../assets/paper.png" alt="Paper" />
+                <h3> Paper </h3>
             </button>
             <button @click="selectedPlay = 'Scissor'" class="play-option" :class="{ selected: selectedPlay === 'Scissor' }">
                 <img src="../assets/scissor.png" alt="Scissors" />
+                <h3> Scissor </h3>
             </button>
         </div>
 
@@ -181,38 +317,33 @@ export default {
         <button class="confirm-btn-create" @click="handleCreateBattle(this.selectedPlay,this.selectedBet)">Confirm Battle</button>
     </div>
 
-    <!--          Modal For Picking a Play              -->
-    <div v-if="showPickPlayModal" class="modal-pick-play">
-            <div class="modal-pick-play-header">
-                <h3>Select your Play:</h3>
-                <button class="modal-play-close-btn" @click="showPickPlayModal = false">Close</button>
-            </div>
 
-            <!-- Play Selection List -->
-            <div class="play-selection-list">
-                <button @click="handleSelectPlay('Rock',this.selectedPvpId) "class="play-option">
-                    <img src="../assets/rock.png" alt="Rock" />
+<!--    <div v-if="this.pvpStore.showWinMessage" class="win-message">-->
+<!--        <p>{{ this.pvpStore.winMessage }}</p>-->
+<!--        <button @click="handleMessage()">Close</button>-->
+<!--    </div>-->
 
-                </button>
-                <button @click="handleSelectPlay('Paper') "class="play-option">
-                    <img src="../assets/paper.png" alt="Paper" />
-                </button>
-                <button @click="handleSelectPlay('Scissor')" class="play-option">
-                    <img src="../assets/scissor.png" alt="Scissors" />
-                </button>
-            </div>
-        </div>
-     <p v-else hidden></p>
-
-    <div v-if="this.pvpStore.showWinMessage" class="win-message">
-        <p>{{ this.pvpStore.winMessage }}</p>
-        <button @click="handleMessage()">Close</button>
-    </div>
+<!--  HISTORY MODAL FOR PVP BATTLES -->
 
 
 </template>
 
 <style scoped>
+.modal-overlay-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7); /* Dark Transparent Background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+body.modal-open {
+    overflow: hidden;
+}
 .modal-create-battle{
     position: fixed;
     top: 30%;
@@ -249,43 +380,6 @@ export default {
 
 }
 
-.modal-pick-play{
-    position: fixed;
-    top: 35%;
-    left: 22.5%;
-    border: black solid;
-    border-radius: 12px;
-    justify-content: center;
-    background: whitesmoke;
-    max-height: 300px;
-    min-height: 300px;
-    min-width: 800px;
-    max-width: 800px;
-    display: flex;
-    align-items: center;
-    overflow-y: auto;
-    overflow-x: hidden;
-}
-.modal-pick-play-header{
-    position: fixed;
-    margin-top: -240px;
-
-}
-.modal-play-close-btn{
-    display: block;
-    position: fixed;
-    top: 520px;
-    left:600px ;
-    padding: 10px 20px;
-    font-size: 16px;
-    background-color: #fd0101;
-    color: white;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    width: 150px;
-
-}
 .bet-selection-list {
     display: flex;
     position: relative;
@@ -336,42 +430,119 @@ export default {
     cursor: pointer;
     width: 150px;
 }
-
-.confirm-btn:hover {
-    background-color: #218838;
+.modal-pick-play{
+    position: fixed;
+    top: 25%;
+    left: 22.5%;
+    border: black solid;
+    border-radius: 12px;
+    justify-content: center;
+    background: whitesmoke;
+    max-height: 450px;
+    min-height: 450px;
+    min-width: 800px;
+    max-width: 800px;
+    display: flex;
+    align-items: center;
+    overflow-y: auto;
+    overflow-x: hidden;
+    z-index: 1001;
 }
 
+.modal-pick-play-header{
+    position: fixed;
+    margin-top: -410px;
+
+}
+.modal-play-close-btn{
+    display: block;
+    position: fixed;
+    top: 600px;
+    left:675px ;
+    padding: 10px 20px;
+    font-size: 16px;
+    background-color: #fd0101;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    width: 150px;
+
+}
+.hostplayimg{
+    position: absolute;
+    top: 50px;
+    left: 130px;
+    width: 150px;
+    height: 150px;
+    border: black 2px solid;
+    border-radius: 10px;
+    padding: 20px;
 
 
+}
+.opponentplayimg{
+    position: absolute;
+    top: 50px;
+    right: 130px;
+    width: 150px;
+    height: 150px;
+    border: black 2px solid;
+    border-radius: 10px;
+    padding: 20px;
+
+
+}
 .play-selection-list {
 
-        margin-left: 20px;
-        display: flex;
-        justify-content: space-evenly;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 20px;
-         width: 1000px;
+    margin-left: 20px;
+
+    display: flex;
+    margin-top: 150px;
+    justify-content: space-evenly;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    width: 1000px;
 
 }
-.play-option {
+.play-selection-list p{
+     display: flex;
+     position: fixed;
+     justify-content: center;
+     gap: 10px;
+     margin-top: -100px;
 
+
+ }
+.play-option {
+    position: relative;
     background: none;
     border: black 6px double;
     border-radius: 5px 5px 20px 20px;
     cursor: pointer;
     padding: 50px;
-    max-height: 150px;
-    min-height: 150px;
-    min-width: 150px;
-    max-width: 150px;
+    height: 100px;
+    width: 100px;
+}
+.play-option h3{
+    position: absolute;
+    text-align: center;
+    left: 27px;
+    width: 50px;
+    top: 80px;
+
+
 }
 
 .play-option img {
-    margin: -50px;
-    justify-content: center;
-    object-fit: cover; ;
-    width: 100px; /* Adjust size */
-    height: 100px;
+    position: absolute;
+    margin-top: -50px;
+    padding: 5px;
+    margin-left: -39px;
+    justify-items: center;
+    object-fit: cover ;
+    width: 80px; /* Adjust size */
+    height: 80px;
     transition: transform 0.2s ease-in-out;
 
 }
@@ -379,6 +550,14 @@ export default {
 .play-option img:hover {
     transform: scale(1.1);
 }
+
+.confirm-btn:hover {
+    background-color: #218838;
+}
+
+
+
+
 
     /* Main Container */
 .container {
@@ -467,17 +646,22 @@ export default {
 /* Button */
 .join-btn {
     background: #ffcc00;
+
     color: #222;
     padding: 10px 15px;
     border: none;
     border-radius: 6px;
     font-weight: bold;
     cursor: pointer;
+    width: 120px;
     transition: background 0.2s;
+    margin-right: 10px;
+    margin-left: 10px;
 }
 
 .join-btn:hover {
     background: #ffdb4d;
+
 }
 
 /* No Listings Message */
@@ -492,17 +676,16 @@ export default {
     width: 120px;
     object-fit: contain;
 }
-.win-message {
-    position: fixed;
+.pvpresult {
+    position: relative;
     top: 50%;
-    left: 50%;
+    left: 49%;
     transform: translate(-50%, -50%);
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
+    color: #050505;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    z-index: 1000;
+
 }
 /* Selected Play & Bet Highlight */
 .selected {
@@ -535,8 +718,74 @@ export default {
 .bet-option:hover {
     background-color: #ddd;
 }
+.overlay-history {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.popup-history {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.2);
+    max-width: 800px;
+    min-width: 800px;
+    animation: fadeIn 0.3s ease-in-out;
+    min-height: 400px;
+    max-height: 400px;
+
+}
+.popup-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 10px;
+    margin-bottom: 10px;
+}
+.show-history-close-btn {
+    position: relative;
+    top: 335px;
+    right: 50px;
+    background: red;
+    color: white;
+    border: none;
+    padding: 5px 6px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+.market-history-container{
+    min-height:280px;
+    max-height: 280px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+.market-history-table {
+    width: 100%;
+    border-collapse: collapse;
 
 
+}
 
+.market-history-table th, .market-history-table td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+    text-align: center;
+
+}
+
+.market-history-table th {
+    background-color: #f4f4f4;
+}
 </style>
 

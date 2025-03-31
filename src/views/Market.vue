@@ -30,7 +30,8 @@ export default {
             showSellModal: false,
             sellQuantity: 1,
             sellPrice: 0,
-            showHistory: false
+            showHistory: false,
+            searchQuery: ""
         };
     },
     computed: {
@@ -40,6 +41,12 @@ export default {
         filteredListings() {
             return this.listings.filter(listing =>
                 this.selectedItem && listing.item_name === this.selectedItem.name
+            )
+        },
+        filteredGroupedListings() {
+            if (!this.searchQuery) return this.groupedListings;
+            return this.groupedListings.filter(item =>
+                item.item_name.toLowerCase().includes(this.searchQuery.toLowerCase())
             );
         },
         listingCounts() {
@@ -128,16 +135,25 @@ export default {
         <!-- Buy View: Market Listings -->
         <div v-if="currentView === 'buy'">
             <h2>Market Listings</h2>
-            <div v-if="groupedListings.length > 0" class="listing-grid">
-                <div v-for="item in groupedListings" :key="item.item_name" class="listing-card">
+            <input
+                v-model="searchQuery"
+                type="text"
+                placeholder="Search for an item..."
+                class="search-input"
+            />
+            <div v-if="filteredGroupedListings.length > 0" class="listing-grid">
+                <div v-for="item in filteredGroupedListings" :key="item.item_name" class="listing-card">
                     <img :src="item.image" :alt="item.item_name" class="listing-image" />
                     <h3 class="itemListing">Available Listing {{ listingCounts[item.item_id] || 0 }}</h3>
                     <h3 class="itemNameH3">ITEM</h3>
                     <h2 class="itemNametext">{{ item.item_name }}</h2>
-                    <button class = "view-listing-btn" @click="openModal(item.item_name, item.item_id)">View Listings</button>
+                    <button class="view-listing-btn" @click="openModal(item.item_name, item.item_id)">
+                        View Listings
+                    </button>
                 </div>
             </div>
             <p v-else>No active listings available.</p>
+
         </div>
 
         <div v-if="currentView === 'sell'" class="sell-container">
@@ -220,7 +236,7 @@ export default {
 
                 <!-- History Overlay Pop-Up -->
                 <div v-if="showHistory" class="overlay">
-                    <div class="popup">
+                    <div class="popup-history">
                         <div class="popup-header">
                             <h3>Item History</h3>
                             <button class="show-history-close-btn" @click="closeHistoryModal()">Close</button>
@@ -697,7 +713,9 @@ button:hover {
     z-index: 1000;
 }
 
-.popup {
+.popup-history {
+    position: fixed;
+
     background: white;
     padding: 20px;
     border-radius: 10px;
@@ -770,6 +788,14 @@ button:hover {
         opacity: 1;
         transform: translateY(0);
     }
+}
+.search-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
 }
 
 </style>

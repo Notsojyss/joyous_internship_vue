@@ -5,6 +5,7 @@ import { useAuthStore } from "@/stores/authStore";
 export const usePvpStore = defineStore("pvp", {
     state: () => ({
         pvpbattles: [],
+        pvphistory: [],
         winMessage: "",
         showWinMessage: false,
 
@@ -90,6 +91,7 @@ export const usePvpStore = defineStore("pvp", {
                                 Accept: "application/json",
                             },
                         });
+                    this.fetchPvpBattles();
                     alert("Battle created successfully:", response.data);
                     console.log("Battle created successfully:", response.data);
 
@@ -100,14 +102,58 @@ export const usePvpStore = defineStore("pvp", {
                         console.error("Response Data:", error.response.data);
                     }
                 }
+            },
+        async fetchHostPlay(pvpId) {
+            try {
+                const token = localStorage.getItem("auth_token");
+                if (!token) {
+                    console.error("No authentication token found");
+                    return null;
+                }
+
+                const apiUrl = `http://joyous-internship-api-local.com/api/pvp/get-HostPlay/${pvpId}`;
+                const response = await axios.get(apiUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
+                });
+
+                console.log("Fetched Host Play:", response.data.host_play);
+                return response.data.host_play; // Directly return the value without storing it
+            } catch (error) {
+                console.error("Error fetching host play:", error);
+                return null;
+            }
+        },
+        async fetchPvpHistory() {
+            try {
+                const token = localStorage.getItem("auth_token");
+                if (!token) {
+                    console.error("No authentication token found");
+                    return;
+                }
+
+                const apiUrl = "http://joyous-internship-api-local.com/api/pvp/getPvpHistory"; // Ensure it's an absolute URL
+                const response = await axios.get(apiUrl, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
+                });
+                this.pvphistory = response.data;
+
+            } catch (error) {
+                console.error("Error fetching PVP History:", error);
+                if (error.response) {
+                    console.error("Response Status:", error.response.status);
+                    console.error("Response Data:", error.response.data);
+                }
             }
 
-    }
+        }
 
-
-
-
-
+    },
 
 
 });
