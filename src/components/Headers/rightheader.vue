@@ -22,8 +22,7 @@ defineProps({
 
 <template>
     <div class="header">
-        <img alt="Vue logo" class="logo" src="../../assets/gtmarketlogo.png" width="80" height="85" />
-        <h1>{{ header }}</h1>
+        <img alt="Vue logo" class="logo" src="../../assets/LTlogo.png" width="200" height="140" />
 
         <loginregister />
 
@@ -32,10 +31,9 @@ defineProps({
             <RouterLink to="/pvp">PVP Battle</RouterLink>
             <RouterLink to="/landingpage">Home</RouterLink>
             <RouterLink to="/market" class="nav-item">
-                <img src="../../assets/gtmarket.png" alt="Market" class="nav-icon" />
                 Marketplace
             </RouterLink>
-            <RouterLink to="/shop"> $ Shop</RouterLink>
+            <RouterLink to="/shop">Shop</RouterLink>
             <RouterLink to="/inventory">Inventory</RouterLink>
         </div>
     </div>
@@ -44,116 +42,67 @@ defineProps({
 
 <style scoped>
 .header{
-    margin: 0;
     position: absolute;
+    margin: 0;
     width: 100% ;
-    background-color: #aaefce;
+    background-color: #0e110e;
     top: 0px;
     left: 0px;
-    min-height: 100px;
-    border: #2c3e50 solid 0.5px;
+    min-height: 70px;
+    max-height: 70px;
+    border: #0b0b0b solid 0.5px;
+    border-radius: 2px;
+    font-weight: bold;
+    box-shadow: 4px 8px 5px 2px rgba(0, 0, 0, 0.87);
 }
 
+
 .logo {
-    margin-top: 0px;
+    position: absolute;
+    margin-top: -25px;
     margin-left: 30px;/* Move the image down */
-    padding: 4px;
+
+
 }
 
 .header h1 {
     font-weight: bold;
     color:#2c3e50;
-    font-family: "MS Gothic";
+    font-family: "Brush Script MT";
     font-size: 32px;
     margin-top: -70px;
     margin-left: 110px ;
     letter-spacing: -2px;
     height: 60px;
+
 }
 
 .navigation {
     position: absolute;
 
-    left: 50%;
+    left: 37%;
     transform: translateX(-50%);
-    background: #94cca9;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    margin-top: 17px;
-    width: 100.1%; /* Adjust width as needed */
-    border: #2c3e50 solid 0.5px;
-
+    margin-top: 18px;
+    width: 50%; /* Adjust width as needed */
     text-align: center;
     display: flex;
     justify-content: center;
 }
 
-
-.nav-link {
-    color: #dc0202;
-    text-decoration: none;
-    font-size: 1.2rem;
-    font-weight: bold;
-    padding: 12px 20px;
-    border-radius: 5px;
-    transition: background 0.3s ease-in-out, transform 0.2s ease;
-}
-.register {
-    position: absolute;
-    top: 45px;
-    right: 20px;
-}
-.login {
-    position: absolute;
-    top: 45px;
-    right: 100px;
-}
-.btn {
-    background: #34495e;
-    color: #fff;
-    border: none;
-    padding: 8px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: 0.3s;
-}
-.btn:hover {
-    background: #1abc9c;
-}
-.buttons {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 10px;
-}
-.nav-link:hover {
-    background: #1abc9c;
-    transform: scale(1.1);
-}
-
-.nav-link:active {
-    background: #16a085;
-}
-
 .navigation a {
 
-    color: #24684c;
+    color: #8e918e;
     font-weight: bold;
-    font-size: 16px;
+    font-size: 18px;
     margin-right: 40px;
     width: auto;
     text-align: center;
     padding: 5px;
 }
 .navigation a:hover {
-
-    background: #1abc9c;
     transform: scale(1.1);
-}
-.router-link-active {
-    background-color: #294034;
-    color: #24684c;
-
-
+    color: red;
+    background: none;
 
 }
 .nav-item {

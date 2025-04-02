@@ -2,10 +2,14 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import calculatorApp from "@/components/Unnecessary/calculatorApp.vue";
 import { useAuthStore } from '@/stores/authStore.js';
+import LandingPage from "@/views/LandingPage.vue";
 const router = createRouter({
     history: createWebHistory(import.meta.env.BASE_URL),
     routes: [
-
+        {
+            path: "/",
+            redirect: "/loginform",
+        },
         {
             name: "registrationform",
             path: "/registrationform",

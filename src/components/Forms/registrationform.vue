@@ -53,7 +53,10 @@ export default {
 </script>
 
 <template>
+
     <div class="forms">
+        <img alt="Vue logo" class="logo" src="../../assets/LTlogo.png" width="200" height="140" />
+        <h1>Register</h1>
         <input v-model="form.username" placeholder="Username" /><br>
         <input v-model="form.password" placeholder="Password" type="password"/><br>
         <input v-model="form.confirmPassword" placeholder="Confirm Password" type="password"/><br>
@@ -65,7 +68,7 @@ export default {
 
         <p class="login-link">
             Already have an account?
-            <router-link to="/loginform">Login</router-link>
+            <router-link class="logintxt" to="/loginform">Login</router-link>
         </p>
         <button @click = "registerUser">Register</button>
 
@@ -76,30 +79,42 @@ export default {
 
 <style scoped>
 .forms {
-    margin-top: 150px;
-    margin-right: 200px;
+    position: absolute;
+    top: 100px;
+    left: 500px;
     width: 600px;
-
+    height: 630px;
     padding: 20px;
-    background: #75d5a3;
+    background: linear-gradient(45deg, #000000 60%, #8f8f8f);
     border-radius: 10px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     text-align: center;
 }
-
+.logo{
+    position: relative;
+    top: -20px;
+}
+.forms h1{
+    position: relative;
+    top:-40px;
+}
 .forms input {
+    position: relative;
+    top: -30px;
     width: 100%;
     padding: 10px;
-    margin: 8px 0;
+    margin: 6px 0;
     border: 1px solid #ddd;
+    height: 30px;
     border-radius: 5px;
     font-size: 16px;
     transition: 0.3s ease;
+    background: #282828;
+    color: white;
 }
 
 .forms input:focus {
-    border-color: #46855b;
-    outline: none;
+    transform: scale(102%);
     box-shadow: 0 0 5px rgba(67, 124, 71, 0.5);
 }
 
@@ -108,7 +123,7 @@ export default {
     padding: 10px;
     margin-top: 10px;
     border: none;
-    background: #2c3e50;
+    background: #494848;
     color: white;
     font-size: 16px;
     border-radius: 5px;
@@ -117,7 +132,18 @@ export default {
 }
 
 .forms button:hover {
-    background: #0056b3;
+    background: #ff0000;
 }
+.login-link{
+    color: #8e918e;
+    margin-top: -30px;
+}
+.logintxt{
+    text-decoration: underline;
+    color: white;
+    font-weight: bold;
+}.logintxt:hover{
+     color: #ff0000;
 
+ }
 </style>

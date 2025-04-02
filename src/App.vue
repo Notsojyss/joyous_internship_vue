@@ -13,28 +13,12 @@ import { RouterLink, RouterView } from 'vue-router'
 
 <div>
     <rightheader
-        header = "GT MARKET HUB"
+        header = "Item Trading"
     ></rightheader></div>
 
     <RouterView />
 </template>
 
 <style scoped>
-.counter{
-    position: fixed;
-    margin-top: -80px;
-    margin-left: -140px;
-    padding: 20px;
-    height: 200px;
-    width: 600px;
-    border: #2c3e50 solid 2px;
-}
-.ctr-position{
-
-    margin-top: 40px;
-    margin-left: 210px;
-
-
-}
 </style>
 

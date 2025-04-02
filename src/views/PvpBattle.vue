@@ -158,8 +158,9 @@ export default {
 <template>
     <div class="container">
         <h2 class="title">PVP BATTLES</h2>
-        <button class="join-btn"  @click="showCreateBattleModal = true">Create Battle</button>
-        <button class="join-btn" @click="showHistoryModal()"> History </button>
+
+        <button class="create-btn"  @click="showCreateBattleModal = true">Create Battle</button>
+        <button class="history-btn" @click="showHistoryModal()"> ⓘ   History  </button>
         <div v-if="pvpbattles.length > 0" class="listing-grid">
             <div v-for="pvp in pvpbattles" :key="pvp.id" class="listing-card">
                 <div class="listing-header">
@@ -243,7 +244,7 @@ export default {
                 <!-- Opponent play image changes on hover -->
                 <img class="opponentplayimg" :src="hoveredPlay ? playImages[hoveredPlay] : playImages['Default']" alt="Opponent Play" />
 
-                <p>Bet: {{ selectedPvpMoneybetted }}</p>
+                <p class="bet-text">Bet: {{ selectedPvpMoneybetted }}</p>
                 <p class="pvpresult">{{ this.pvpStore.winMessage }}</p>
 
                 <!-- Play Options -->
@@ -351,7 +352,7 @@ body.modal-open {
     border: black solid;
     border-radius: 12px;
     justify-content: center;
-    background: whitesmoke;
+    background: linear-gradient(45deg, #373737 60%, #8f8f8f);
     max-height: 360px;
     min-height: 360px;
     min-width: 800px;
@@ -364,7 +365,7 @@ body.modal-open {
 .modal-create-battle-header{
     position: fixed;
     margin-top: -300px;
-
+    color: white;
 }
 
 .modal-create-battle-options{
@@ -377,6 +378,7 @@ body.modal-open {
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
     width: 1000px;
+
 
 }
 
@@ -437,7 +439,7 @@ body.modal-open {
     border: black solid;
     border-radius: 12px;
     justify-content: center;
-    background: whitesmoke;
+    background: linear-gradient(45deg, #373737 60%, #8f8f8f);
     max-height: 450px;
     min-height: 450px;
     min-width: 800px;
@@ -452,12 +454,13 @@ body.modal-open {
 .modal-pick-play-header{
     position: fixed;
     margin-top: -410px;
+    color: white;
 
 }
 .modal-play-close-btn{
     display: block;
     position: fixed;
-    top: 600px;
+    top: 580px;
     left:675px ;
     padding: 10px 20px;
     font-size: 16px;
@@ -475,10 +478,10 @@ body.modal-open {
     left: 130px;
     width: 150px;
     height: 150px;
-    border: black 2px solid;
+    border: #cccccc 2px solid;
     border-radius: 10px;
     padding: 20px;
-
+    background: rgba(39, 39, 39, 0.91);
 
 }
 .opponentplayimg{
@@ -487,10 +490,10 @@ body.modal-open {
     right: 130px;
     width: 150px;
     height: 150px;
-    border: black 2px solid;
+    border: #cccccc 2px solid;
     border-radius: 10px;
     padding: 20px;
-
+    background: rgba(39, 39, 39, 0.91);
 
 }
 .play-selection-list {
@@ -511,18 +514,27 @@ body.modal-open {
      justify-content: center;
      gap: 10px;
      margin-top: -100px;
-
+    color: #ffffff;
 
  }
+.bet-text{
+    display: flex;
+    position: absolute;
+    justify-content: center;
+    gap: 10px;
+    top: 450px;
+    color: #ffffff;
+}
 .play-option {
     position: relative;
     background: none;
-    border: black 6px double;
+    border: #aeabab 6px double;
     border-radius: 5px 5px 20px 20px;
     cursor: pointer;
     padding: 50px;
     height: 100px;
     width: 100px;
+    color: white;
 }
 .play-option h3{
     position: absolute;
@@ -562,7 +574,7 @@ body.modal-open {
     /* Main Container */
 .container {
     text-align: center;
-    background-color: whitesmoke;
+    background: transparent;
     padding: 20px;
     text-align: center;
     min-width: 1200px;
@@ -572,14 +584,18 @@ body.modal-open {
     max-height: 650px;
     min-height: 650px;
     max-width: 1200px;
-    background-color: whitesmoke;
 }
 
 /* Title */
 .title {
+    position: relative;
     font-size: 24px;
-    color: #ffcc00;
-    margin-bottom: 20px;
+    color: #f5ff28;
+    left: -450px;
+    top: 0px;
+    font-weight: bold;
+    font-family: "Brush Script MT";
+    font-size: 40px;
 }
 
 /* Grid layout for battles */
@@ -588,6 +604,8 @@ body.modal-open {
     grid-template-columns: repeat(6, 4fr);
     gap: 10px;
     padding: 20px;
+    position: relative;
+    top:-40px;
     justify-items: center;
     max-width: 1160px;
     min-width: 1160px;
@@ -644,8 +662,44 @@ body.modal-open {
 }
 
 /* Button */
+.create-btn {
+    background: #5de33f;
+    position: relative;
+    top: -50px;
+    right: -450px;
+    color: #222;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 120px;
+    transition: background 0.2s;
+    margin-right: 10px;
+    margin-left: 10px;
+}.history-btn {
+    position: relative;
+    top: -50px;
+    right: -450px;
+    background: transparent;
+    font-weight: bold;
+    color: #ffffff;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 120px;
+    transition: background 0.2s;
+    margin-right: 10px;
+    margin-left: 10px;
+}.history-btn:hover{
+    transform: scale(105%);
+    color:red;
+
+}
 .join-btn {
-    background: #ffcc00;
+    background: #ffdb4d;
 
     color: #222;
     padding: 10px 15px;
@@ -678,13 +732,16 @@ body.modal-open {
 }
 .pvpresult {
     position: relative;
-    top: 50%;
+    top: 77%;
     left: 49%;
     transform: translate(-50%, -50%);
     color: #050505;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
+    font-size: 24px;
+    font-weight: bold;
+    font-family: "Brush Script MT";
 
 }
 /* Selected Play & Bet Highlight */
@@ -695,6 +752,7 @@ body.modal-open {
 .bet-header {
     position: fixed;
     top:    430px;
+    color: white;
 }
 
 /* Styling for Bet Selection */
@@ -772,15 +830,25 @@ body.modal-open {
 .market-history-table {
     width: 100%;
     border-collapse: collapse;
-
+    border: none;
 
 }
 
-.market-history-table th, .market-history-table td {
+.market-history-table th{
+    position: sticky;
+    top: 0;
+    background: #f8f8f8;
+    z-index: 10;
+    padding: 10px;
+    text-align: center;
+    border-bottom: 2px solid #ddd;
+}
+.market-history-table td {
     border: 1px solid #ddd;
     padding: 8px;
     text-align: left;
     text-align: center;
+    border: none;
 
 }
 
